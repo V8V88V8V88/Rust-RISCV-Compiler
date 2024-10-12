@@ -2,7 +2,7 @@ use logos::Logos;
 
 #[derive(Logos, Debug, PartialEq, Clone)]
 pub enum Token {
-    #[regex(r"\d+", |lex| lex.slice().parse())]
+    #[regex(r"\d+", parse_int)]
     Integer(i32),
 
     #[token("+")]
@@ -56,6 +56,10 @@ pub enum Token {
     #[error]
     #[regex(r"[ \t\n\f]+", logos::skip)]
     Error,
+}
+
+fn parse_int(lex: &mut logos::Lexer<Token>) -> Option<i32> {
+    lex.slice().parse().ok()
 }
 
 pub fn tokenize(input: &str) -> Vec<Token> {

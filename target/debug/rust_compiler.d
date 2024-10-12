@@ -1,0 +1,1 @@
+/home/v8v88v8v88/Rust-RISCV-Compiler/target/debug/rust_compiler: /home/v8v88v8v88/Rust-RISCV-Compiler/src/ast.rs /home/v8v88v8v88/Rust-RISCV-Compiler/src/code_gen.rs /home/v8v88v8v88/Rust-RISCV-Compiler/src/lexer.rs /home/v8v88v8v88/Rust-RISCV-Compiler/src/main.rs /home/v8v88v8v88/Rust-RISCV-Compiler/src/parser.rs
