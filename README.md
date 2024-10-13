@@ -1,53 +1,132 @@
-# Mini Virtual Machine
+# Rust-RISCV-Compiler
 
-This project implements a simple virtual machine (VM) in Rust, featuring a basic instruction set, memory management, and a colorful Terminal User Interface (TUI).
+A simple compiler written in Rust that targets the RISC-V architecture. This project implements a basic compiler pipeline including lexical analysis, parsing, abstract syntax tree (AST) generation, and code generation for a custom language.
 
-## Features
+## Project Structure
 
-- 8 general-purpose registers
-- 1024 bytes of simulated memory
-- Basic instruction set (load, store, arithmetic, branching)
-- Stack support for function calls
-- Colorful TUI displaying VM state in real-time
+```
+Rust-RISCV-Compiler/
+│
+├── src/
+│   ├── main.rs       # Entry point of the compiler
+│   ├── lexer.rs      # Tokenization of input source code
+│   ├── parser.rs     # Parsing tokens into an AST
+│   ├── ast.rs        # Abstract Syntax Tree definitions
+│   └── code_gen.rs   # RISC-V code generation from AST
+│
+├── Cargo.toml        # Rust package manifest
+├── Cargo.lock        # Rust dependency lock file
+└── README.md         # This file
+```
 
-## Prerequisites
+## Compiler Pipeline
 
-- Rust programming language (latest stable version)
-- Cargo package manager
+The compiler follows a standard pipeline structure:
+
+```mermaid
+graph TD
+    A[Source Code] -->|Input| B[Lexer]
+    B -->|Tokens| C[Parser]
+    C -->|AST| D[Code Generator]
+    D -->|RISC-V Assembly| E[Output]
+    
+    subgraph "Compiler Pipeline"
+    B
+    C
+    D
+    end
+    
+    F[ast.rs] -.->|Defines| C
+    G[lexer.rs] -.->|Implements| B
+    H[parser.rs] -.->|Implements| C
+    I[code_gen.rs] -.->|Implements| D
+    J[main.rs] -.->|Coordinates| B & C & D
+```
+
+1. **Lexical Analysis (lexer.rs)**: Breaks down the input source code into a series of tokens.
+2. **Parsing (parser.rs)**: Consumes the tokens and builds an Abstract Syntax Tree (AST).
+3. **AST Representation (ast.rs)**: Defines the structure for the Abstract Syntax Tree.
+4. **Code Generation (code_gen.rs)**: Traverses the AST and generates RISC-V assembly code.
 
 ## Building and Running
 
-1. Clone the repository:
-   ```
-   git clone https://github.com/yourusername/mini-vm.git
-   cd mini-vm
-   ```
+To build the project:
 
-2. Build the project:
-   ```
-   cargo build --release
-   ```
+```bash
+cargo build
+```
 
-3. Run the VM:
-   ```
-   cargo run --release
-   ```
+To run the compiler:
 
-## What to Expect
+```bash
+cargo run -- <input_file>
+```
 
-When you run the VM, you'll see a TUI updating every half second, showing:
+Replace `<input_file>` with the path to your source code file.
 
-- Register values (blue)
-- Memory contents (green)
-- Stack state (yellow)
-- Current instruction (red)
+## Language Features
 
-The VM will execute a pre-defined example program demonstrating various operations.
+Our custom language supports:
 
-## Modifying the Program
+- Basic arithmetic operations
+- Variable declarations and assignments
+- Conditional statements (if/else)
+- Loops (while)
+- Function definitions and calls
 
-To run a different program, edit the `program` array in `src/main.rs` and recompile the project.
+(You can expand this section with more details about your language's syntax and features.)
+
+## RISC-V Output
+
+The compiler generates RISC-V assembly code. You can use a RISC-V simulator or emulator to run the generated code.
+
+## Example
+
+Here's a simple example of our language and its compilation process:
+
+```
+// Input: example.mylang
+function main() {
+    let x = 5;
+    let y = 10;
+    print(x + y);
+}
+```
+
+Compilation:
+```bash
+cargo run -- example.mylang
+```
+
+This will produce RISC-V assembly output (example output):
+
+```assembly
+.globl main
+main:
+    addi sp, sp, -16
+    li t0, 5
+    sw t0, 0(sp)
+    li t0, 10
+    sw t0, 4(sp)
+    lw t0, 0(sp)
+    lw t1, 4(sp)
+    add a0, t0, t1
+    call print
+    addi sp, sp, 16
+    ret
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
-This project is open source and available under the MIT License.
+This project is open source and available under the [MIT License](LICENSE).
+
+## Future Improvements
+
+- Implement more advanced language features (e.g., structs, enums)
+- Add optimizations to the code generation phase
+- Extend error reporting and recovery mechanisms
+- Create a standard library for the custom language
