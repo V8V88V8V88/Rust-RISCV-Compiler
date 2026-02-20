@@ -19,9 +19,13 @@ impl CodeGenerator {
     }
 
     fn generate(&mut self, ast: Vec<Stmt>) -> String {
+        let stack_size = (ast.iter().filter_map(|s| self.stmt_var_count(s)).sum::<usize>() * 4).max(16);
+        let stack_size = (stack_size + 15) & !15;
+
         self.output.push_str(".text\n");
         self.output.push_str(".globl main\n");
         self.output.push_str("main:\n");
+        self.output.push_str(&format!("    addi sp, sp, -{}\n", stack_size));
 
         for stmt in ast {
             self.generate_stmt(stmt);
@@ -31,6 +35,19 @@ impl CodeGenerator {
         self.output.push_str("    ret\n");
 
         self.output.clone()
+    }
+
+    fn stmt_var_count(&self, stmt: &Stmt) -> Option<usize> {
+        match stmt {
+            Stmt::Assign(..) => Some(1),
+            Stmt::Block(stmts) => Some(stmts.iter().filter_map(|s| self.stmt_var_count(s)).sum()),
+            Stmt::Expr(Expr::If(_, then_b, else_b)) => {
+                let t: usize = self.stmt_var_count(then_b).unwrap_or(0);
+                let e: usize = else_b.as_ref().and_then(|b| self.stmt_var_count(b)).unwrap_or(0);
+                Some(t + e)
+            }
+            _ => None,
+        }
     }
 
     fn generate_stmt(&mut self, stmt: Stmt) {
@@ -113,8 +130,8 @@ impl CodeGenerator {
                 let right_temp = self.generate_expr(*right);
                 let result_temp = self.new_temp();
                 self.output.push_str(&format!(
-                    "    sgt {}, {}, {}\n",
-                    result_temp, left_temp, right_temp
+                    "    slt {}, {}, {}\n",
+                    result_temp, right_temp, left_temp
                 ));
                 result_temp
             }

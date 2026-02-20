@@ -8,6 +8,8 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Stmt> {
     while iter.peek().is_some() {
         if let Some(stmt) = parse_statement(&mut iter) {
             statements.push(stmt);
+        } else {
+            iter.next();
         }
     }
 

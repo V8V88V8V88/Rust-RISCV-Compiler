@@ -23,9 +23,6 @@ pub enum Token {
     #[token(">")]
     GreaterThan,
 
-    #[token("<")]
-    LessThan,
-
     #[token("(")]
     LeftParen,
 
@@ -63,5 +60,5 @@ fn parse_int(lex: &mut logos::Lexer<Token>) -> Option<i32> {
 }
 
 pub fn tokenize(input: &str) -> Vec<Token> {
-    Token::lexer(input).collect()
+    Token::lexer(input).filter(|t| !matches!(t, Token::Error)).collect()
 }
